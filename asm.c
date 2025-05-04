@@ -106,14 +106,18 @@ void num_to_hex_string(int hex, char* str) {
 
 void AssemblyToHex(char* line, char* mem_data[], int* instruction_counter,int label_counter,label label_table[]) {
 	char neg_immidiate[10];
+	char line_copy[INPUT_MAX_LINE_SIZE];
 	char reg_buff[3]="0";
 	int address = 0;
-	char data[9] = "";
+	char data[INPUT_MAX_LINE_SIZE] = "\0";
+	char out_put_data[INPUT_MAX_LINE_SIZE] = "\0";
+	int data_len = 0;
 	int number = 0;
 	int immidiate = 0;
 	int len_hex_imm = 0;
 	char output_line[20] = "\0";
 	char second_line[20] = "\0";
+	strcpy(line_copy, line);
 	char opcode_asm_buff[10];
 	char para1_asm_buff[10];
 	char para2_asm_buff[10];
@@ -121,64 +125,69 @@ void AssemblyToHex(char* line, char* mem_data[], int* instruction_counter,int la
 	char para4_asm_buff[10];
 	sscanf(line, "%s %[^,], %[^,], %[^,], %s", opcode_asm_buff, para1_asm_buff, para2_asm_buff, para3_asm_buff, para4_asm_buff);
 	if (strcmp(opcode_asm_buff,".word")==0) {
+		sscanf(line_copy, "%s %s %s", opcode_asm_buff, para1_asm_buff, para2_asm_buff);
 		if (para1_asm_buff[0] == '0' && para1_asm_buff[1] == 'x') //convert hex string into integer 
 			address = strtol(para1_asm_buff, NULL, 16);
 		else
 			address = atoi(para1_asm_buff);
-		if (para2_asm_buff[0] == '0' && para2_asm_buff[1] == 'x')
+		if (para2_asm_buff[0] == '0' && para2_asm_buff[1] == 'x') 
 			strcpy(data, para2_asm_buff[2]);
 		else {
-			number = atoi(para2_asm_buff);      // Convert decimal string to hex string
+			number = atoi(para2_asm_buff);
+			// Convert decimal string to hex string
 			sprintf(data, "%X", number);
 		}
-		strcpy(mem_data[address], data);
-	}
-	MapOpCode(opcode_asm_buff);
-	strcat(output_line, opcode_asm_buff);
-	MapRegister(para1_asm_buff,reg_buff); 
-	strcat(output_line, reg_buff);
-	MapRegister(para2_asm_buff,reg_buff); strcat(output_line, reg_buff);
-	MapRegister(para3_asm_buff, reg_buff); strcat(output_line, reg_buff);
-	if (get_label_address(para4_asm_buff,label_counter, label_table) != BAD_LABEL) {
-		strcat(output_line, "100");
-		immidiate = get_label_address(para4_asm_buff, label_counter,label_table);
-		num_to_hex_string(immidiate, para4_asm_buff);
-		len_hex_imm = strlen(para4_asm_buff);
-		for (int i = 0; i < (8 - len_hex_imm); i++) {
-			strcat(second_line, "0");
+		data_len = strlen(data);
+		for (int i = 0; i < (8 - data_len); i++) {
+			strcat(out_put_data, "0");
 		}
-		strcat(second_line, para4_asm_buff);
+		strcat(out_put_data, data);
+		strcpy(mem_data[address], out_put_data);
 	}
-	immidiate = atoi(para4_asm_buff);
-	if (immidiate < -128 || immidiate>127) {
-		strcat(output_line, "100");
-		num_to_hex_string(immidiate, para4_asm_buff);
-		len_hex_imm = strlen(para4_asm_buff);
-		for (int i = 0; i < (8 - len_hex_imm); i++) {
-			strcat(second_line, "0");
+	else {
+		MapOpCode(opcode_asm_buff); strcat(output_line, opcode_asm_buff);
+		MapRegister(para1_asm_buff, reg_buff); strcat(output_line, reg_buff);
+		MapRegister(para2_asm_buff, reg_buff); strcat(output_line, reg_buff);
+		MapRegister(para3_asm_buff, reg_buff); strcat(output_line, reg_buff);
+		if (get_label_address(para4_asm_buff, label_counter, label_table) != BAD_LABEL) {
+			strcat(output_line, "100");
+			immidiate = get_label_address(para4_asm_buff, label_counter, label_table);
+			num_to_hex_string(immidiate, para4_asm_buff);
+			len_hex_imm = strlen(para4_asm_buff);
+			for (int i = 0; i < (8 - len_hex_imm); i++) {
+				strcat(second_line, "0");
+			}
+			strcat(second_line, para4_asm_buff);
 		}
-		strcat(second_line, para4_asm_buff);
-	}
-	else if(strlen(output_line) < 8 ) {
-		strcat(output_line, "0");
-		num_to_hex_string(immidiate, para4_asm_buff);
-		if (strlen(para4_asm_buff) == 1)
+		immidiate = atoi(para4_asm_buff);
+		if (immidiate < -128 || immidiate>127) {
+			strcat(output_line, "100");
+			num_to_hex_string(immidiate, para4_asm_buff);
+			len_hex_imm = strlen(para4_asm_buff);
+			for (int i = 0; i < (8 - len_hex_imm); i++) {
+				strcat(second_line, "0");
+			}
+			strcat(second_line, para4_asm_buff);
+		}
+		else if (strlen(output_line) < 8) {
 			strcat(output_line, "0");
-		if (immidiate < 0) {
-			neg_immidiate[0] = para4_asm_buff[6]; neg_immidiate[1] = para4_asm_buff[7]; neg_immidiate[3] = '\0';
-			strcat(output_line, neg_immidiate);
+			num_to_hex_string(immidiate, para4_asm_buff);
+			if (strlen(para4_asm_buff) == 1)
+				strcat(output_line, "0");
+			if (immidiate < 0) {
+				neg_immidiate[0] = para4_asm_buff[6]; neg_immidiate[1] = para4_asm_buff[7]; neg_immidiate[3] = '\0';
+				strcat(output_line, neg_immidiate);
+			}
+			if (immidiate >= 0)
+				strcat(output_line, para4_asm_buff);
 		}
-		printf("%s\n", para4_asm_buff);///////////////////
-		if(immidiate>=0)
-			strcat(output_line, para4_asm_buff);
+		strcpy(mem_data[*instruction_counter], output_line);
+		if (strcmp(second_line, "\0") != 0) {
+			*instruction_counter = *instruction_counter + 1;
+			strcpy(mem_data[*instruction_counter], second_line);
+		}
+		(*instruction_counter)++;
 	}
-	strcpy(mem_data[*instruction_counter], output_line);
-	if (strcmp(second_line, "\0") != 0) {
-		*instruction_counter = *instruction_counter + 1;
-		strcpy(mem_data[*instruction_counter], second_line);
-	}
-	(*instruction_counter)++;
-
 }
 //first assembler pass
 int first_pass(FILE* asm, label label_table[]) {
