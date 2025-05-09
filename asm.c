@@ -168,7 +168,6 @@ void AssemblyToHex(char* line, char* mem_data[], int* instruction_counter,int la
 			neg_immidiate[0] = para4_asm_buff[6]; neg_immidiate[1] = para4_asm_buff[7]; neg_immidiate[3] = '\0';
 			strcat(output_line, neg_immidiate);
 		}
-		printf("%s\n", para4_asm_buff);///////////////////
 		if(immidiate>=0)
 			strcat(output_line, para4_asm_buff);
 	}
