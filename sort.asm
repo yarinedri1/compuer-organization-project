@@ -12,7 +12,7 @@ for1:
 	 bgt $imm, $s0, $s3, exit1          #if i > n, exit1
 	 add $s1, $s0, imm, -1 	            #s1 = j = i - 1
 for2:
-     blt $imm, $s1, $zero, exit2        #if j < 0, exit2
+         blt $imm, $s1, $zero, exit2        #if j < 0, exit2
 	 add $t1, $s1, $zero, 0             #$t1 = j
 	 add $t2 ,$t1, $s2, 0               #$t2 = arr + j
 	 lw $t3, $t2, $imm, 0               #$t3 = arr[j]
@@ -24,8 +24,8 @@ for2:
 	 add $s1, $s1, imm, -1              #j = j - 1
 	 beq $imm, $zero, $zero, for2       #jump for2
 exit2:
-      add $t0, $zero, $imm , 1			#$t0 = 1
-	  add, $s0, $s0, $imm, 1 		    #$i = i + 1
+          add $t0, $zero, $imm , 1		#$t0 = 1
+	  add, $s0, $s0, $imm, 1 		#$i = i + 1
 	  beq $imm, $zero, $zero, for1		#jump for1
 
 exit1:
@@ -38,11 +38,11 @@ exit1:
 	 jr $ra                             #return to caller
 
 swap: 
-	add $t0, $a0, $a1, 0			#$t0 = $a0 + $a1 = arr[i]
-	lw $t1, $t0, $imm, 0 	        #$t1 = arr[i] 				
-	lw $t2, $t0, $imm, 1 	        #$t2 = arr[i+1] 
-	sw $t2, $t0, $imm, 0 	        #arr[i] = arr[i+1]
-	sw $t1, $t0, $imm, 1 	        #arr[i+1] = arr[i]
-	jr $ra                          #return to caller
+	add $t0, $a0, $a1, 0		   #$t0 = $a0 + $a1 = arr[i]
+	lw $t1, $t0, $imm, 0 	           #$t1 = arr[i] 				
+	lw $t2, $t0, $imm, 1 	           #$t2 = arr[i+1] 
+	sw $t2, $t0, $imm, 0 	           #arr[i] = arr[i+1]
+	sw $t1, $t0, $imm, 1 	           #arr[i+1] = arr[i]
+	jr $ra                             #return to caller
 
 
