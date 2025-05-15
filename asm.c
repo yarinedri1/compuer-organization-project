@@ -220,9 +220,6 @@ int first_pass(FILE* asm, label label_table[]) {
 			ilc++;
 	}
 	rewind(asm);
-	for(int i = 0; i < label_counter; i++) {
-		printf("Label: %s, Address: %d\n", label_table[i].name, label_table[i].address);
-	}
 	return label_counter;
 }
 
